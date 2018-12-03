@@ -21,4 +21,9 @@ $ sudo apt-get update
 $ sudo apt-get install docker-ce
 
 $ sudo apt-get install criu
+
+$ git clone https://github.com/moby/moby.git
+
+$ cd moby && sudo make install && cd ..
+
 ```
