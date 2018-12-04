@@ -1,9 +1,17 @@
 #!/bin/bash
 
+function stopcontainer {
+  local LASTID=`docker ps -q -n 1`
+  docker stop $LASTID  
+}
+
+trap stopcontainer SIGKILL 
+
 MASTER="raven01:8080"
 DFS='hadoop dfs '
 
-RUNNING_INSTANCE=`curl -s "http://${MASTER}/v2/apps/test1122/tasks" | jq -r '.tasks[].id'`
+LAST_APP_ID=`curl -s "http://${MASTER}/v2/apps" | | jq -r ".apps[-1].id"` 
+RUNNING_INSTANCE=`curl -s "http://${MASTER}/v2/apps/${LAST_APP_ID}/tasks" | jq -r '.tasks[].id'`
 BACKUP=`$DFS -ls /backups 2>&1 | grep "^d[rwx-]\{0,9\}t\?\s" | awk '{ print $8; }'`
 
 echo $RUNNING_INSTANCE

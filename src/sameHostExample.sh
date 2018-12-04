@@ -38,7 +38,7 @@ echo "This is a simple example of checkpoint"
 echo ""
 echo "Starting a container that increments a counter by 1 every second..."
 echo "$ docker run -d --name ${container_name} busybox /bin/sh -c 'i=0; while true; do echo \$i; i=\$((i+1)); sleep 1; done'"
-docker run -d --name ${container_name} busybox /bin/sh -c 'i=0; while true; do echo $i; i=$((i+1)); sleep 1; done'
+docker run -d --name ${container_name} --security-opt seccomp:unconfined busybox /bin/sh -c 'i=0; while true; do echo $i; i=$((i+1)); sleep 1; done'
 echo ""
 
 trap destroy INT

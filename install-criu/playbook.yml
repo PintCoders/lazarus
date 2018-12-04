@@ -1,0 +1,67 @@
+---
+- hosts: all
+  become_user: root
+  tasks:
+  - name: Install dependencies
+    yum: pkg={{ item }} state=installed
+    with_items:
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
+
+  - name: Add extra repositories
+    command: /bin/yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+  - name: enable repo edge
+    command: /bin/yum-config-manager --enable docker-ce-edge
+
+  - name: enable repo test
+    command: /bin/yum-config-manager --enable docker-ce-test
+
+  - name: Remove other docker
+    yum: pkg={{ item }} state=removed
+    with_items:
+      - docker
+      - docker-common
+
+  - name: Install after dependencies
+    yum: pkg={{ item }} state=installed
+    with_items:
+      - docker-ce
+      - protobuf
+      - protobuf-c
+      - protobuf-c-devel
+      - protobuf-compiler
+      - protobuf-devel
+      - protobuf-python
+      - libbsd
+      - libcap-devel
+      - libnl3-devel
+      - libaio-devel
+      - criu
+
+  - name: Add experimental features for docker
+    lineinfile:
+      create: yes
+      state: present
+      path: /etc/docker/daemon.json
+      regexp: "^{"
+      line: '{ "experimental": true }'
+
+
+  - name: Restart docker service
+    service:
+      name: docker
+      state: restarted
+
+  - name: Add docker support to mesos
+    lineinfile:
+      create: yes
+      state: present
+      path: /etc/mesos-slave/containerizers
+      line: 'docker,mesos'
+
+  - name: Restart mesos-slave
+    service:
+      name: mesos-slave 
+      state: restarted
