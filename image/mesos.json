@@ -1,0 +1,15 @@
+{
+  "id": "simple-server",
+  "cpus": 1,
+  "mem": 128,
+  "networks": [ { "mode": "container/bridge" } ],
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "olzhabay/simple_server"
+    },
+    "portMappings": [
+      { "containerPort": 8080, "hostPort": 0 }
+    ]
+  }
+}

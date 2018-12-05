@@ -1,30 +1,28 @@
-#!/usr/bin/python
-from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
+import time
 
-PORT_NUMBER = 8080
+from twisted.web import server, resource
+from twisted.internet import reactor
 
-#This class will handles any incoming request from
-#the browser 
-class myHandler(BaseHTTPRequestHandler):
-	
-	#Handler for the GET requests
-	def do_GET(self):
-		self.send_response(200)
-		self.send_header('Content-type','text/html')
-		self.end_headers()
-		# Send the html message
-		self.wfile.write("Hello World !")
-		return
+class Simple(resource.Resource):
+	isLeaf = True
+	def render_GET(self, request):
+		return "<html>%s Iterations!</html>" % n
 
-try:
-	#Create a web server and define the handler to manage the
-	#incoming request
-	server = HTTPServer(('', PORT_NUMBER), myHandler)
-	print 'Started httpserver on port ' , PORT_NUMBER
-	
-	#Wait forever for incoming htto requests
-	server.serve_forever()
+def main():
+	global n
+	print "Starting http server on 8080 port"  
+	site = server.Site(Simple())
+	reactor.listenTCP(8080, site)
+	reactor.startRunning(False)
+	n = 0
+	print "Starting loop"
+	while True:
+		n += 1
+		if n % 100 == 0:
+			print n
+		time.sleep(0.1)
+		reactor.iterate()
 
-except KeyboardInterrupt:
-	print '^C received, shutting down the web server'
-	server.socket.close()
+if __name__=="__main__":
+	main()
+
