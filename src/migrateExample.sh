@@ -45,7 +45,7 @@ migrate() {
 restore() {
     echo "Starting container [${container_name}] on ${migration_host} from checkpoint [${checkpoint_name}]"
     # Create new container on host with same container name
-    echo "$ docker create --name ${container_name} ${container_image}"
+    echo "$ docker create --name ${container_name}  --security-opt seccomp:unconfined ${container_image}"
     remote_container_id=$(ssh ${migration_host} "docker create --name ${container_name} ${container_image}")
 
     # Unpack backup
@@ -70,7 +70,7 @@ echo "This is an example of contianer migration in action"
 echo ""
 echo "Starting a container that increments a counter by 1 every second..."
 echo "$ docker run -d --name ${container_name} ${container_image} /bin/sh -c 'i=0; while true; do echo \$i; i=\$((i+1)); sleep 1; done'"
-docker run -d --name ${container_name} ${container_image} /bin/sh -c 'i=0; while true; do echo $i; i=$((i+1)); sleep 1; done'
+docker run -d --name ${container_name}  --security-opt seccomp:unconfined ${container_image} /bin/sh -c 'i=0; while true; do echo $i; i=$((i+1)); sleep 1; done'
 echo ""
 
 trap destroy INT

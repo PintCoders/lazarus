@@ -1,0 +1,8 @@
+{
+  "id": "test",
+  "cmd": "/home/vicente/lazarus/src/agent.sh",
+  "cpus": 1,
+  "mem": 128,
+  "disk": 0,
+  "instances": 2
+}

@@ -18,6 +18,9 @@
   - name: enable repo test
     command: /bin/yum-config-manager --enable docker-ce-test
 
+  - name: enable repo nightly
+    command: /bin/yum-config-manager --enable docker-ce-nightly
+
   - name: Remove other docker
     yum: pkg={{ item }} state=removed
     with_items:
@@ -25,7 +28,7 @@
       - docker-common
 
   - name: Install after dependencies
-    yum: pkg={{ item }} state=installed
+    yum: pkg={{ item }} state=latest
     with_items:
       - docker-ce
       - protobuf
@@ -58,10 +61,32 @@
     lineinfile:
       create: yes
       state: present
+      path: /etc/mesos-slave/resources
+      regexp: "^cpus"
+      line: 'cpus:1;gpus:0;mem:6000;disk:100000;ports:[21000-24000,30000-34000]'
+    tags: 
+      - mesos
+
+  - name: Add docker support to mesos
+    lineinfile:
+      create: yes
+      state: present
       path: /etc/mesos-slave/containerizers
       line: 'docker,mesos'
+    tags: 
+      - mesos
+
+  - name: Add docker support to mesos
+    file:
+      #create: yes
+      state: absent
+      path: /etc/mesos-slave/enable_features
+    tags: 
+      - mesos
 
   - name: Restart mesos-slave
     service:
       name: mesos-slave 
       state: restarted
+    tags: 
+      - mesos
