@@ -31,16 +31,17 @@ BACKUPS=$(sort <<<`ls $BACKUP_PATH`)
 DEAD_CONTAINER=`comm -23 <(echo "$BACKUPS" | tr ' ' '\n') <(echo "$RUNNING" | tr ' ' "\n")`
 
 if ! [ -z $DEAD_CONTAINER ]; then
-  remote_container_id=$(sudo docker create --name simple busybox)
+  remote_container_id=$(sudo docker create --security-opt seccomp:unconfined --name ${container_name} busybox)
   #sudo docker start --checkpoint-dir=$BACKUP_PATH --checkpoint $DEAD_CONTAINER simple
   lastcontainer=`sudo docker ps -q -l -a`
   ckpdir="/var/lib/docker/containers/`sudo ls /var/lib/docker/containers/ | grep $lastcontainer`/checkpoints"
   sudo cp -r $BACKUP_PATH/$DEAD_CONTAINER $ckpdir
 
   sudo docker start --checkpoint $DEAD_CONTAINER simple
-  #sudo rm -rf $BACKUP_PATH/$DEAD_CONTAINER
+  sudo rm -rf $BACKUP_PATH/$DEAD_CONTAINER
 else 
   sudo docker run -d --name ${container_name} --security-opt seccomp:unconfined busybox /bin/sh -c 'i=0; while true; do echo $i; i=$((i+1)); sleep 1; done'
+  #sudo docker run -d --name ${container_name} --security-opt seccomp:unconfined -p 8081:8080 olzhabay/simple_server
 fi 
 
 set +x
