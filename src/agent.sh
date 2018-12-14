@@ -7,7 +7,7 @@ function stopcontainer {
   sudo docker stop -t 1 $LASTID
   sudo docker rm $LASTID
   echo "STOPPED"
-  exit 0
+  exit 123
 }
 
 trap stopcontainer SIGINT SIGTERM
